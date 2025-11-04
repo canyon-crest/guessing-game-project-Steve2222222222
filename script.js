@@ -56,7 +56,10 @@ function reset(){
         levelArr[i].disabled=false;
     }
 }
-
+function give(){
+    reset()
+    msg.textContent = "Unfortunate you could not get it. The answer was "+answer+". Try again later"
+}
 function updateScore(){
     scoreArr.push(score);
     scoreArr.sort((a,b)=>a-b);//sort increasing order
