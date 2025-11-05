@@ -1,10 +1,12 @@
 // global variables
 let level, answer, score;
-
+let playerName="";
 const levelArr=document.getElementsByName("level");
 const scoreArr=[];
+monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
+let nameInput=document.getElementById("person");
 
-let playerName = "";
+
 
 date.textContent=time();
 //add event listeners
@@ -13,6 +15,23 @@ guessBtn.addEventListener("click",makeGuess);
 giveUp.addEventListener("click",give);
 nameBtn.addEventListener("click",getPlayerName);
 
+
+
+
+
+
+function getPlayerName(){
+
+    playerName = nameInput.value.charAt(0).toUpperCase() + nameInput.value.slice(1).toLowerCase();
+    if(playerName ==""||!isNaN(Number(playerName))){ 
+        msg.textContent="Please enter a valid name.";
+        return;
+    }
+    
+    msg.textContent = "Player: " + playerName;
+    playBtn.disabled=false;
+    nameInput.value = "";
+}
 
 function play(){
     score=0; //sets score to 0 every new game
@@ -61,7 +80,7 @@ function makeGuess(){
         msg.textContent = "Too High — " + proximity;
     }
     else{
-        msg.textContent="You finally got it after "+score+" tries. Press play to play again";
+        msg.textContent="You  got it after "+score+" tries " +playerName+". Press play to play again";
         updateScore();
         reset();
     }
@@ -79,8 +98,12 @@ function reset(){
     }
 }
 function give(){
-    reset()
-    msg.textContent = "Unfortunate you could not get it. The answer was "+answer+". Try again later"
+    score=level; //max score if you give up
+    updateScore();
+    score=0;
+    reset();
+    msg.textContent = playerName+" how could you do this to me. Unfortunate you could not get it. The answer was "+answer+". Try again later"
+
 }
 function updateScore(){
     scoreArr.push(score);
@@ -91,16 +114,30 @@ function updateScore(){
     for(let i=0;i<scoreArr.length;i++){
         sum+=scoreArr[i];
         if(i<lb.length){
-            lb[i].textContent=scoreArr[i];
+            lb[i].textContent=playerName+": " +scoreArr[i];
         }
     }
     let avg=sum/scoreArr.length;
-    avgScore.textContent="Average Score:" + avg.toFixed(2);
+    avgScore.textContent="Average Score: " + avg.toFixed(2);
 }
 function time(){
     let d =new Date();
-    //concatenate a string with all the date information here
-    //d=d.getFullYear()+" "+d.getTime();
+    let month=d.getMonth();
+    let day=d.getDate();
+    let year=d.getFullYear();
+    if(day==1){
+        day=day+"st";
+    }
+    else if(day==2){
+        day=day+"nd";
+    }
+    else if(day==3){
+        day=day+"rd";
+    }
+    else{
+        day=day+"th";
+    }
+    d=monthNames[month]+" "+day+" "+year;
     //use set interval to have time tick
     return d;
 }
