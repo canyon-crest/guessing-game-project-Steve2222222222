@@ -1,13 +1,19 @@
 // global variables
 let level, answer, score;
+
 const levelArr=document.getElementsByName("level");
 const scoreArr=[];
+
+let playerName = "";
 
 date.textContent=time();
 //add event listeners
 playBtn.addEventListener("click",play);
 guessBtn.addEventListener("click",makeGuess);
 giveUp.addEventListener("click",give);
+nameBtn.addEventListener("click",getPlayerName);
+
+
 function play(){
     score=0; //sets score to 0 every new game
     playBtn.disabled=true;
@@ -25,18 +31,34 @@ function play(){
     guess.placeholder=answer;
 
 }
+
+    function getProximityFeedback(diff){
+        const lvl = Number(level);
+        const hot = Math.max(1, Math.round(lvl * 0.05)); 
+        const warm = Math.max(2, Math.round(lvl * 0.15)); 
+        const cool = Math.max(5, Math.round(lvl * 0.30)); 
+
+        if (diff === 0) return "Right on target";
+        if (diff <= hot) return "Hot";
+        if (diff <= warm) return "Warm";
+        if (diff <= cool) return "Cool";
+        return "Cold";
+    }
 function makeGuess(){
     let userGuess=parseInt(guess.value);
     if(isNaN(userGuess) || userGuess<1 || userGuess> level){
         msg.textContent="Enter a VALID #1-"+level;
         return;
     }
-    score++;//valid guess add one to score
+    score++;
+
+    const diff = Math.abs(userGuess - answer);
+    const proximity = getProximityFeedback(diff);
     if(userGuess<answer){
-        msg.textContent="Too Low";
+        msg.textContent = "Too Low, " + proximity;
     }
     else if(userGuess>answer){
-        msg.textContent="Too High";
+        msg.textContent = "Too High — " + proximity;
     }
     else{
         msg.textContent="You finally got it after "+score+" tries. Press play to play again";
