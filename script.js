@@ -4,6 +4,7 @@ let playerName="";
 const levelArr=document.getElementsByName("level");
 const scoreArr=[];
 const timeArr=[];
+const nameArr = [];
 monthNames=["January","February","March","April","May","June","July","August","September","October","November","December"];
 let nameInput=document.getElementById("person");
 
@@ -69,6 +70,7 @@ function play(){
     guessBtn.disabled=false;
     giveUp.disabled=false;
     guess.disabled=false;
+
     resetTime();
     start();
     for(let i=0;i<levelArr.length;i++){
@@ -78,6 +80,7 @@ function play(){
         levelArr[i].disabled=true;
     }
     msg.textContent = "Guess a number from 1-"+level;
+    msg2.textContent="";
     answer=Math.floor(Math.random()*level)+1;
     guess.placeholder=answer;
 
@@ -113,7 +116,16 @@ function makeGuess(){
         msg.textContent = "Too High — " + proximity;
     }
     else{
-        msg.textContent="You  got it after "+score+" tries " +playerName+". Press play to play again";
+        msg.textContent="You  got it after "+score+" tries " +playerName;
+        if (score<=level*2.5){
+            msg2.textContent+="Nice "+playerName+"! You're pretty good.";
+        }
+        else if(score>=level*2.5&&score<=level*10){
+            msg2.textContent+="You're alright "+playerName+", do better.";
+        }
+        else{
+            msg2.textContent+="Wow "+playerName+", that was pretty bad";
+        }
         stopTime();
         updateScore();
         reset();
@@ -128,6 +140,7 @@ function reset(){
     giveUp.disabled=true;
     guess.value="";
     guess.placeholder="";
+
     for (let i = 0; i < levelArr.length; i++) {
     levelArr[i].disabled = false;
   }
@@ -137,32 +150,45 @@ function reset(){
 function give(){
     score=level; //max score if you give up
     updateScore();
-    score=0;
     reset();
+    score=0;
     msg.textContent = playerName+" how could you do this to me. Unfortunate you could not get it. The answer was "+answer+". Try again later"
+    stopTime();
 
 }
 
 function updateScore(){
     scoreArr.push(score);
-    //timeArr.push(elapsed);
-    scoreArr.sort((a,b)=>a-b);//sort increasing order
+    timeArr.push(elapsed/1000);
+    nameArr.push(playerName);
+    for (let i = 0; i < scoreArr.length - 1; i++) {
+        for (let j = i + 1; j < scoreArr.length; j++) {
+            if (scoreArr[i] > scoreArr[j] || (scoreArr[i] === scoreArr[j] && timeArr[i] > timeArr[j])) {
+                // swap scores
+                [scoreArr[i], scoreArr[j]] = [scoreArr[j], scoreArr[i]];
+                // swap times
+                [timeArr[i], timeArr[j]] = [timeArr[j], timeArr[i]];
+                // swap names
+                [nameArr[i], nameArr[j]] = [nameArr[j], nameArr[i]];
+            }
+        }
+    }
     let lb=document.getElementsByName("leaderboard");
     wins.textContent="Total wins: "+scoreArr.length;
     let sum=0;
+    let sumTime=0;
     for(let i=0;i<scoreArr.length;i++){
         sum+=scoreArr[i];
+        sumTime+=timeArr[i];
         if(i<lb.length){
-            lb[i].textContent=playerName+": " +scoreArr[i]+", time of: "+(elapsed/1000).toFixed(2)+"s";
+            lb[i].textContent=nameArr[i]+": " +scoreArr[i]+", time of: "+timeArr[i].toFixed(2)+"s";
         }
     }
-    //for (let i=0;i<timeArr.length;i++){
-        //sumTime+=timeArr[i];
-    }
-    //let avgTime=sumTime/timeArr.length;;
-//     let avg=sum/scoreArr.length;
-//     avgScore.textContent="Average Score: " + avg.toFixed(2);
-// }
+    const avgScoreVal = sum / scoreArr.length;
+    const avgTimeVal = sumTime / timeArr.length;
+
+    avgScore.textContent = "Average Score: " +avgScoreVal.toFixed(2) +", Average Time: " +avgTimeVal.toFixed(2) +"s";
+ }
 setInterval(time, 1000);
 function time(){
 
