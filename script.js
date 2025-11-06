@@ -109,6 +109,8 @@ function makeGuess(){
 
     const diff = Math.abs(userGuess - answer);
     const proximity = getProximityFeedback(diff);
+    updateHeatBar(diff);
+
     if(userGuess<answer){
         msg.textContent = "Too Low, " + proximity;
     }
@@ -126,6 +128,7 @@ function makeGuess(){
         else{
             msg2.textContent+="Wow "+playerName+", that was pretty bad";
         }
+        flashWin();
         stopTime();
         updateScore();
         reset();
@@ -133,6 +136,19 @@ function makeGuess(){
 
 }
 
+
+function flashWin() {
+  let flashes = 0;
+  const colors = ["#9aaf3cff", "#e2ad39ff"];
+  const flasher = setInterval(() => {
+    msg.style.color = colors[flashes % 2];
+    flashes++;
+    if (flashes > 6) {
+      clearInterval(flasher);
+      msg.style.color = "#000"; // reset color
+    }
+  }, 200);
+}
 function reset(){
     playBtn.disabled=false;
     guessBtn.disabled=true;
@@ -148,12 +164,13 @@ function reset(){
 
 
 function give(){
+    stopTime();
     score=level; //max score if you give up
     updateScore();
     reset();
     score=0;
     msg.textContent = playerName+" how could you do this to me. Unfortunate you could not get it. The answer was "+answer+". Try again later"
-    stopTime();
+    
 
 }
 
@@ -220,4 +237,18 @@ function time(){
     document.getElementById("date").textContent = d;
 
     return d;
+}
+function updateHeatBar(diff) {
+  const heatFill = document.getElementById("heatFill");
+
+  // Calculate how close the guess is (100% = correct)
+  const proximityPercent = Math.max(0, 100 - (diff / level) * 100);
+
+  // Change the width based on proximity
+  heatFill.style.width = proximityPercent + "%";
+
+  // Change the color smoothly using HSL (Hue, Saturation, Lightness)
+  // Red when close (0 hue), Blue when far (240 hue)
+  const hue = Math.floor((proximityPercent / 100) * 240);
+  heatFill.style.backgroundColor = `hsl(${240 - hue}, 100%, 50%)`;
 }
